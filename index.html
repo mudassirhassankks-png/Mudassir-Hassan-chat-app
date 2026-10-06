@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MUDASSIR CHAT APP - Light</title>
+<link rel="icon" href="logo.png">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui}
+body{background:#f0f2f5;color:#111b21;height:100vh;overflow:hidden}
+.hidden{display:none!important}
+/* LIGHT LOGIN */
+#loginPage{min-height:100vh;background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 50%,#fff8e1 100%);display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:#ffffff;width:100%;max-width:400px;padding:28px;border-radius:24px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.08);border:1px solid #e8e8e8}
+.logo-wrap{position:relative;width:130px;height:130px;margin:0 auto 16px}
+.logo-img{width:130px;height:130px;border-radius:50%;border:4px solid #d4af37;object-fit:cover;box-shadow:0 8px 24px rgba(212,175,55,.3);background:#fff}
+.cam-badge{position:absolute;bottom:2px;right:2px;width:38px;height:38px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;border:3px solid #fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.input{width:100%;padding:14px 16px;border:1.5px solid #e0e0e0;border-radius:12px;background:#f9fafb;color:#111b21;margin-top:10px;font-size:15px;transition:.2s}
+.input:focus{outline:none;border-color:#25D366;background:#fff;box-shadow:0 0 0 3px rgba(37,211,102,.1)}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;background:#25D366;color:#fff;font-weight:800;margin-top:14px;cursor:pointer;font-size:16px;box-shadow:0 4px 14px rgba(37,211,102,.35);transition:.2s}
+.btn:active{transform:scale(.98)}
+.btn-gold{background:linear-gradient(90deg,#d4af37,#b8941f);color:#111b21}
+#appPage{display:flex;height:100vh}
+#sidebar{width:100%;max-width:420px;background:#fff;border-right:1px solid #e9edef;display:flex;flex-direction:column}
+#chatArea{flex:1;background:#efeae2;display:flex;flex-direction:column;position:relative}
+#chatArea::before{content:'';position:absolute;inset:0;background-image:url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');opacity:.06;pointer-events:none}
+.top{background:#f0f2f5;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e9edef;z-index:2}
+.contact{display:flex;gap:12px;align-items:center;padding:12px 14px;cursor:pointer;border-bottom:1px solid #f5f6f6;transition:.15s}
+.contact:hover{background:#f5f6f6}
+.avatar{width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #d4af37;background:#fff}
+.avatar-default{width:50px;height:50px;background:linear-gradient(135deg,#25D366,#128C7E);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:20px}
+.avatar-group{width:50px;height:50px;background:linear-gradient(135deg,#d4af37,#b8941f);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#111b21;font-size:22px;font-weight:800}
+#msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;z-index:1}
+.bubble{max-width:78%;padding:8px 12px;border-radius:8px;font-size:14.5px;position:relative;cursor:pointer;box-shadow:0 1px.5px rgba(0,0,0,.13);color:#111b21;line-height:1.3}
+.me{background:#d9fdd3;align-self:flex-end;border-top-right-radius:0}
+.other{background:#fff;align-self:flex-start;border-top-left-radius:0}
+.time{font-size:10px;color:#667781;margin-top:4px;text-align:right}
+.bar{background:#f0f2f5;padding:8px 10px;display:flex;gap:8px;align-items:center;z-index:2}
+.bar input{flex:1;padding:12px 16px;border-radius:24px;border:none;background:#fff;color:#111b21;box-shadow:0 1px 3px rgba(0,0,0,.08);font-size:15px}
+.icon-btn{width:44px;height:44px;border-radius:50%;border:none;background:#fff;color:#54656f;cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.send{background:#25D366;color:#fff}
+.modal{position:fixed;inset:0;background:rgba(11,20,26,.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:999;padding:16px}
+.modal-box{background:#fff;border-radius:18px;padding:22px;width:100%;max-width:420px;color:#111b21;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.context-menu{position:fixed;background:#fff;border-radius:14px;padding:8px;z-index:1000;min-width:240px;box-shadow:0 12px 32px rgba(0,0,0,.18);border:1px solid #e9edef}
+.context-item{padding:12px 14px;cursor:pointer;border-radius:10px;font-size:14px;color:#111b21;display:flex;gap:10px;align-items:center}
+.context-item:hover{background:#f0f2f5}
+.filter-btn{flex:1;padding:8px 12px;border-radius:20px;border:none;font-size:13px;font-weight:700;cursor:pointer;transition:.2s}
+.filter-active{background:#25D366;color:#fff!important;box-shadow:0 2px 8px rgba(37,211,102,.3)}
+.filter-inactive{background:#f0f2f5;color:#54656f}
+.group-check{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid #f5f6f6;cursor:pointer}
+.group-check:hover{background:#f9fafb}
+</style>
+</head>
+<body>
+<div id="loginPage">
+<div class="card">
+<div class="logo-wrap" onclick="loginPhoto.click()">
+<img id="loginPreview" src="logo.png" onerror="this.src='https://via.placeholder.com/130x130/d4af37/ffffff?text=M'" class="logo-img">
+<div class="cam-badge">📷</div>
+</div>
+<input type="file" id="loginPhoto" accept="image/*" hidden>
+<h2 style="color:#0a3320;letter-spacing:.5px;font-size:22px">MUDASSIR CHAT APP</h2>
+<p style="color:#d4af37;font-size:11px;font-weight:800;margin:6px 0;letter-spacing:1px"> 🇳🇬🇳🇬🇳🇬</p>
+<p style="color:#667781;font-size:12px;margin:0 0 18px;">Light Theme • Profile • Groups • Firebase</p>
+<input id="myName" class="input" placeholder="Your Full Name">
+<input id="myPhone" class="input" placeholder="Phone Number e.g. 08012345678">
+<button class="btn" onclick="login()">ENTER MUDASSIR CHAT 🚀</button>
+<p style="font-size:11px;color:#25D366;margin-top:12px">📷 Danna hoton sama ka saka Profile Photo dinka</p>
+</div>
+</div>
+
+<!-- CREATE GROUP MODAL -->
+<div id="groupModal" class="modal hidden">
+<div class="modal-box">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="color:#0a3320">👥 Create New Group</h3><button onclick="closeGroup()" style="width:34px;height:34px;border-radius:50%;border:none;background:#f0f2f5;font-size:16px">✕</button></div>
+<div style="text-align:center;margin-bottom:16px">
+<div style="position:relative;width:100px;height:100px;margin:0 auto">
+<img id="groupPreview" src="https://via.placeholder.com/100x100/d4af37/111b21?text=👥" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:4px solid #d4af37;background:#fff">
+<button onclick="groupPhoto.click()" style="position:absolute;bottom:0;right:0;width:34px;height:34px;border-radius:50%;border:3px solid #fff;background:#25D366;color:#fff;font-size:16px">📷</button>
+</div>
+<input type="file" id="groupPhoto" accept="image/*" hidden>
+</div>
+<input id="groupName" class="input" placeholder="Group Name e.g. Family, Class, Masjid" style="margin-bottom:14px">
+<p style="font-size:13px;font-weight:700;margin-bottom:8px;color:#0a3320">Select Members (tap to select):</p>
+<div id="memberList" style="max-height:220px;overflow-y:auto;border:1.5px solid #e9edef;border-radius:14px;padding:8px 12px;background:#f9fafb"></div>
+<button class="btn btn-gold" onclick="createGroup()" style="margin-top:16px">✨ Create Group</button>
+</div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div id="profileModal" class="modal hidden">
+<div class="modal-box">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3>👤 My Profile</h3><button onclick="closeProfile()" style="width:34px;height:34px;border-radius:50%;border:none;background:#f0f2f5">✕</button></div>
+<div style="text-align:center">
+<div style="position:relative;width:120px;height:120px;margin:0 auto 14px">
+<img id="myProfilePreview" src="logo.png" class="logo-img" style="width:120px;height:120px">
+<button onclick="profilePhoto.click()" style="position:absolute;bottom:0;right:0;width:38px;height:38px;border-radius:50%;border:3px solid #fff;background:#25D366;color:#fff;font-size:18px">📷</button>
+</div>
+<input type="file" id="profilePhoto" accept="image/*" hidden>
+<input id="editName" class="input" placeholder="Your Name">
+<input id="editPhone" class="input" placeholder="Phone" disabled style="opacity:.6;background:#f0f2f5">
+<button class="btn" onclick="saveProfile()">Save Profile ✅</button>
+<div style="margin-top:14px;padding:12px;background:#f9fafb;border-radius:12px;font-size:12px;color:#667781;text-align:left">
+<p>📱 <span id="setMyPhone"></span></p>
+<p style="margin-top:6px">💾 <button onclick="saveAllImages()" style="border:none;background:#25D366;color:#fff;padding:4px 10px;border-radius:8px;font-size:11px">Save All Images</button> <button onclick="saveAllVideos()" style="border:none;background:#128C7E;color:#fff;padding:4px 10px;border-radius:8px;font-size:11px">Videos</button></p>
+<p style="margin-top:8px"><button onclick="logout()" style="width:100%;padding:10px;border:none;border-radius:10px;background:#ffebee;color:#d32f2f;font-weight:700">🚪 Logout</button></p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="contextMenu" class="context-menu hidden">
+<div class="context-item" onclick="downloadCurrentMedia()">💾 Save Image / Video / Audio</div>
+<div class="context-item" onclick="deleteForMe()">🗑️ Delete for Me</div>
+<div class="context-item" onclick="deleteForEveryone()" style="color:#d32f2f">🗑️ Delete for Everyone</div>
+<div class="context-item" onclick="blockUser()" style="color:#e67e22">🚫 Block User</div>
+<div class="context-item" onclick="closeContext()">✕ Cancel</div>
+</div>
+
+<div id="appPage" class="hidden">
+<div id="sidebar">
+<div class="top"><div style="display:flex;gap:12px;align-items:center;cursor:pointer" onclick="openProfile()"><img id="myAv" src="logo.png" class="avatar" onerror="this.style.display='none';myAvDef.style.display='flex'"><div id="myAvDef" class="avatar-default" style="display:none">M</div><div><b id="myNameTop" style="color:#111b21"></b><div style="font-size:11px;color:#25D366;">● Online • Tap to edit</div></div></div><div style="display:flex;gap:8px;"><button onclick="openGroup()" style="width:40px;height:40px;border-radius:50%;border:none;background:#25D366;color:#fff;font-size:18px;box-shadow:0 2px 6px rgba(37,211,102,.3)">👥</button><button onclick="openProfile()" style="width:40px;height:40px;border-radius:50%;border:none;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.1)">⚙️</button></div></div>
+<div style="padding:10px;background:#fff;"><input id="search" oninput="render()" placeholder="🔍 Search contacts or groups..." class="input" style="margin:0;background:#f0f2f5;padding:11px 16px;"><div style="display:flex;gap:6px;margin-top:8px;"><input id="newPhone" placeholder="Add phone number" class="input" style="flex:1;margin:0;padding:11px 14px;background:#f0f2f5;"><button onclick="addContact()" style="padding:11px 16px;border-radius:12px;border:none;background:#25D366;color:#fff;font-weight:800;">Add</button></div></div>
+<div style="display:flex;gap:8px;padding:10px 10px 8px;background:#fff;border-bottom:1px solid #f0f2f5"><button onclick="setFilter('all')" id="fAll" class="filter-btn filter-active">All</button><button onclick="setFilter('groups')" id="fGroups" class="filter-btn filter-inactive">👥 Groups</button><button onclick="setFilter('chats')" id="fChats" class="filter-btn filter-inactive">💬 Chats</button></div>
+<div id="list" style="flex:1;overflow-y:auto;background:#fff"></div>
+<div style="text-align:center;padding:10px;font-size:10px;color:#d4af37;background:#fff;border-top:1px solid #f0f2f5;letter-spacing:.5px">MUDASSIR CHAT v4.0 LIGHT ✨ • Mubarak 🕌</div>
+</div>
+<div id="chatArea">
+<div id="empty" style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#667781;text-align:center;padding:24px;z-index:1"><img src="logo.png" style="width:130px;height:130px;border-radius:50%;border:4px solid #d4af37;box-shadow:0 8px 24px rgba(212,175,55,.25);margin-bottom:16px" onerror="this.style.display='none'"><h3 style="color:#0a3320;font-size:20px">MUDASSIR CHAT APP</h3><p style="font-size:13px;margin-top:6px;line-height:1.5">Light Theme ☀️ • Profile Photo 📷 • Group Chat 👥<br>Long press message: Save / Delete / Block</p><button onclick="openGroup()" style="margin-top:16px;padding:12px 22px;border-radius:24px;border:none;background:#25D366;color:#fff;font-weight:800;box-shadow:0 4px 12px rgba(37,211,102,.3)">+ Create Group</button></div>
+<div id="active" class="hidden" style="display:flex;flex-direction:column;flex:1;z-index:1">
+<div class="top"><div style="display:flex;gap:12px;align-items:center;"><button onclick="closeChat()" style="background:#fff;border:none;color:#54656f;width:36px;height:36px;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.1)">←</button><img id="cAvImg" src="" class="avatar hidden"><div id="cAv" class="avatar-default">A</div><div><b id="cName" style="color:#111b21"></b><div style="font-size:11px;color:#667781;" id="cPhone"></div></div></div><div style="display:flex;gap:6px;"><button onclick="blockUser()" style="width:36px;height:36px;border-radius:50%;border:none;background:#ffebee;color:#d32f2f;">🚫</button></div></div>
+<div id="msgs"></div>
+<div id="blockedNotice" class="hidden" style="background:#ffebee;text-align:center;padding:12px;font-size:13px;color:#d32f2f;z-index:2">🚫 You blocked this user. <button onclick="unblockCurrent()" style="margin-left:10px;padding:6px 14px;border-radius:16px;border:none;background:#d32f2f;color:#fff;font-weight:800;">Unblock</button></div>
+<div class="bar"><button class="icon-btn" onclick="photoInput.click()">📷</button><button class="icon-btn" onclick="videoInput.click()">📹</button><input type="file" id="photoInput" accept="image/*" hidden><input type="file" id="videoInput" accept="video/*" hidden><input id="msgInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendText()"><button class="icon-btn" id="recBtn" onclick="toggleRec()">🎤</button><button class="icon-btn send" onclick="sendText()">➤</button></div>
+</div>
+</div>
+</div>
+<div id="imgModal" style="position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:999;flex-direction:column;padding:20px;" onclick="if(event.target.id==='imgModal')this.style.display='none'"><img id="fullImg" style="max-width:92%;max-height:72%;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.5)"><div style="margin-top:16px;display:flex;gap:10px;"><button onclick="downloadCurrentMedia()" style="padding:12px 20px;border-radius:24px;border:none;background:#25D366;color:#fff;font-weight:800;">💾 Save</button><button onclick="document.getElementById('imgModal').style.display='none'" style="padding:12px 20px;border-radius:24px;border:none;background:#fff;color:#111b21;font-weight:700">Close</button></div></div>
+
+<script>
+const firebaseConfig={apiKey:"AIzaSyDk3VoQTgZ0A68Dok4n8F0V_EkSBEpPO9k",authDomain:"mtn-tracker-2026.firebaseapp.com",projectId:"mtn-tracker-2026",storageBucket:"mtn-tracker-2026.firebasestorage.app",messagingSenderId:"860362652143",appId:"1:860362652143:web:8a82ce6d877152264c5e1a"};
+firebase.initializeApp(firebaseConfig); const db=firebase.firestore();
+let me=null,allUsers=[],allGroups=[],curPhone=null,curIsGroup=false,curGroupId=null,unsub=null,mediaRecorder=null,audioChunks=[],isRecording=false,selectedMsgId=null,selectedMsgData=null,allMessages=[],myBlocked=[],filterMode='all';
+let loginB64=null,profileB64=null,groupB64=null;
+
+db.collection('chat_users').onSnapshot(s=>{allUsers=[];s.forEach(d=>allUsers.push(d.data()));render();});
+db.collection('groups').onSnapshot(s=>{allGroups=[];s.forEach(d=>allGroups.push({id:d.id,...d.data()}));render();});
+
+loginPhoto.addEventListener('change',function(){const f=this.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{loginB64=e.target.result;loginPreview.src=loginB64;};r.readAsDataURL(f);});
+profilePhoto.addEventListener('change',function(){const f=this.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{profileB64=e.target.result;myProfilePreview.src=profileB64;};r.readAsDataURL(f);});
+groupPhoto.addEventListener('change',function(){const f=this.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{groupB64=e.target.result;groupPreview.src=groupB64;};r.readAsDataURL(f);});
+
+function login(){const n=myName.value.trim(),p=myPhone.value.trim().replace(/[^0-9]/g,'');if(!n||p.length<10){alert('Fill name and phone');return;}const photo=loginB64||loginPreview.src;me={name:n,phone:p,photo:photo,online:true,lastSeen:Date.now(),blocked:[]};localStorage.setItem('mudassir_chat',JSON.stringify(me));db.collection('chat_users').doc(p).set({...me,createdAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});start();}
+function start(){if(!me){const s=localStorage.getItem('mudassir_chat');if(s)me=JSON.parse(s);else return;}db.collection('chat_users').doc(me.phone).get().then(doc=>{if(doc.exists){const d=doc.data();myBlocked=d.blocked||[];me.photo=d.photo||me.photo;myAv.src=me.photo;myProfilePreview.src=me.photo;}});loginPage.classList.add('hidden');appPage.classList.remove('hidden');myNameTop.textContent=me.name;if(me.photo){myAv.src=me.photo;myAv.style.display='block';myAvDef.style.display='none';}else{myAvDef.textContent=me.name[0].toUpperCase();}setMyPhone.textContent=me.phone;render();setInterval(()=>{if(me)db.collection('chat_users').doc(me.phone).update({online:true,lastSeen:Date.now()});},30000);}
+function openProfile(){profileModal.classList.remove('hidden');editName.value=me.name;editPhone.value=me.phone;myProfilePreview.src=me.photo||'logo.png';setMyPhone.textContent=me.phone;}
+function closeProfile(){profileModal.classList.add('hidden');}
+async function saveProfile(){const n=editName.value.trim();if(!n){alert('Name required');return;}const newPhoto=profileB64||me.photo;me.name=n;me.photo=newPhoto;localStorage.setItem('mudassir_chat',JSON.stringify(me));await db.collection('chat_users').doc(me.phone).update({name:n,photo:newPhoto});myNameTop.textContent=n;myAv.src=newPhoto;closeProfile();render();alert('✅ Profile Saved!');}
+function openGroup(){groupModal.classList.remove('hidden');memberList.innerHTML=allUsers.filter(u=>u.phone!==me.phone).map(u=>`<label class="group-check"><input type="checkbox" value="${u.phone}" style="width:18px;height:18px;accent-color:#25D366"> ${u.photo?`<img src="${u.photo}" style="width:34px;height:34px;border-radius:50%;object-fit:cover">`:`<div style="width:34px;height:34px;border-radius:50%;background:#f0f2f5;display:flex;align-items:center;justify-content:center;font-weight:800">${u.name[0]}</div>`}<span style="flex:1;font-size:14px">${u.name} <small style="color:#667781">(${u.phone})</small></span></label>`).join('')||'<p style="text-align:center;color:#8696a0;padding:14px">No contacts yet. Add numbers first.</p>';}
+function closeGroup(){groupModal.classList.add('hidden');}
+async function createGroup(){const gname=groupName.value.trim();if(!gname){alert('Enter group name');return;}const checks=[...memberList.querySelectorAll('input:checked')].map(i=>i.value);if(checks.length===0){alert('Select at least 1 member');return;}const members=[me.phone,...checks];const photo=groupB64||'';const id='group_'+Date.now();await db.collection('groups').doc(id).set({name:gname,photo:photo,members:members,createdBy:me.phone,createdAt:firebase.firestore.FieldValue.serverTimestamp(),lastMessage:'Group created'});closeGroup();groupName.value='';groupB64=null;groupPreview.src='https://via.placeholder.com/100x100/d4af37/111b21?text=👥';alert('✅ Group Created: '+gname);openChatGroup(id);}
+function setFilter(m){filterMode=m;render();}
+function render(){const q=(search.value||'').toLowerCase();let contacts=allUsers.filter(u=>u.phone!==me?.phone);if(q)contacts=contacts.filter(u=>u.name.toLowerCase().includes(q)||u.phone.includes(q));let groupsFiltered=allGroups.filter(g=>g.members&&g.members.includes(me?.phone));if(q)groupsFiltered=groupsFiltered.filter(g=>g.name.toLowerCase().includes(q));let html='';
+if(filterMode==='all'||filterMode==='groups'){groupsFiltered.forEach(g=>{html+=`<div class="contact" onclick="openChatGroup('${g.id}')"><div class="avatar-group" style="${g.photo?'padding:0;overflow:hidden;border:2px solid #d4af37':''}">${g.photo?`<img src="${g.photo}" style="width:100%;height:100%;object-fit:cover">`:'👥'}</div><div style="flex:1"><b>👥 ${g.name}</b><div style="font-size:12px;color:#667781;">${g.members.length} members • ${g.lastMessage||'No messages'}</div></div><span style="font-size:10px;background:#25D366;color:#fff;padding:4px 10px;border-radius:12px;font-weight:700">GROUP</span></div>`;});}
+if(filterMode==='all'||filterMode==='chats'){html+=contacts.map(u=>{const on=u.online&&(Date.now()-u.lastSeen<120000);const isBlocked=myBlocked.includes(u.phone);return `<div class="contact ${isBlocked?'blocked':''}" onclick="openChat('${u.phone}')">${u.photo?`<img src="${u.photo}" class="avatar">`:`<div class="avatar-default">${u.name[0].toUpperCase()}</div>`}<div style="flex:1"><b>${u.name} ${isBlocked?'🚫':''}</b><div style="font-size:12px;color:#667781;">${u.phone} • ${on?'🟢 online':'⚪'} ${isBlocked?'• BLOCKED':''}</div></div></div>`;}).join('');}
+list.innerHTML=html||'<p style="text-align:center;color:#8696a0;padding:24px;">No contacts. Add number or create group 👥.</p>';
+document.getElementById('fAll').className=filterMode==='all'?'filter-btn filter-active':'filter-btn filter-inactive';
+document.getElementById('fGroups').className=filterMode==='groups'?'filter-btn filter-active':'filter-btn filter-inactive';
+document.getElementById('fChats').className=filterMode==='chats'?'filter-btn filter-active':'filter-btn filter-inactive';
+}
+function addContact(){const p=newPhone.value.trim().replace(/[^0-9]/g,'');if(p.length<10){alert('Invalid');return;}if(!allUsers.find(u=>u.phone===p))db.collection('chat_users').doc(p).set({name:'User '+p.slice(-4),phone:p,online:false,lastSeen:Date.now(),createdAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});newPhone.value='';openChat(p);}
+function openChat(ph){curIsGroup=false;curGroupId=null;curPhone=ph;const u=allUsers.find(x=>x.phone===ph)||{name:ph,phone:ph};empty.classList.add('hidden');active.classList.remove('hidden');cName.textContent=u.name;cPhone.textContent=u.phone;if(u.photo){cAvImg.src=u.photo;cAvImg.classList.remove('hidden');cAv.classList.add('hidden');}else{cAvImg.classList.add('hidden');cAv.classList.remove('hidden');cAv.textContent=u.name[0].toUpperCase();}if(myBlocked.includes(ph)){blockedNotice.classList.remove('hidden');msgInput.disabled=true;}else{blockedNotice.classList.add('hidden');msgInput.disabled=false;}if(window.innerWidth<800)sidebar.classList.add('hidden');listenMsgs();}
+function openChatGroup(gid){curIsGroup=true;curGroupId=gid;curPhone=null;const g=allGroups.find(x=>x.id===gid);if(!g)return;empty.classList.add('hidden');active.classList.remove('hidden');cName.textContent='👥 '+g.name;cPhone.textContent=g.members.length+' members';if(g.photo){cAvImg.src=g.photo;cAvImg.classList.remove('hidden');cAv.classList.add('hidden');}else{cAvImg.classList.add('hidden');cAv.classList.remove('hidden');cAv.textContent='👥';}blockedNotice.classList.add('hidden');msgInput.disabled=false;if(window.innerWidth<800)sidebar.classList.add('hidden');listenGroupMsgs();}
+function closeChat(){active.classList.add('hidden');empty.classList.remove('hidden');sidebar.classList.remove('hidden');if(unsub)unsub();}
+function getId(a,b){return[a,b].sort().join('_');}
+function listenMsgs(){if(unsub)unsub();const id=getId(me.phone,curPhone);unsub=db.collection('chats').doc(id).collection('messages').orderBy('createdAt','asc').onSnapshot(s=>{allMessages=[];s.forEach(d=>allMessages.push({id:d.id,...d.data()}));renderMsgs();});}
+function listenGroupMsgs(){if(unsub)unsub();unsub=db.collection('groups').doc(curGroupId).collection('messages').orderBy('createdAt','asc').onSnapshot(s=>{allMessages=[];s.forEach(d=>allMessages.push({id:d.id,...d.data()}));renderMsgs(true);});}
+function renderMsgs(isGroup=false){const box=msgs;box.innerHTML=allMessages.filter(m=>!m.deletedFor||!m.deletedFor.includes(me.phone)).map(m=>{const isMe=m.from===me.phone;const senderName=isGroup&&!isMe?(allUsers.find(u=>u.phone===m.from)?.name||m.from):'';let c='';if(m.deleted)c='<i style="color:#667781;">🚫 deleted</i>';else if(m.type==='image')c=`<img src="${m.text}" style="max-width:220px;border-radius:10px;display:block" onclick="openFull(this.src)">`;else if(m.type==='video')c=`<video controls src="${m.text}" style="max-width:220px;border-radius:10px;"></video>`;else if(m.type==='audio')c=`<audio controls src="${m.text}" style="width:200px;"></audio>`;else c=m.text;return `<div class="bubble ${isMe?'me':'other'}" data-id="${m.id}" oncontextmenu="event.preventDefault();showContext('${m.id}',event)" ontouchstart="touchStart('${m.id}',event)" ontouchend="touchEnd()">${isGroup&&!isMe?`<div style="font-size:11px;color:#25D366;font-weight:800;margin-bottom:3px">${senderName}</div>`:''}${c}<div class="time">${m.time||''} ${isMe?'✓✓':''}</div></div>`;}).join('');box.scrollTop=box.scrollHeight;}
+async function sendText(){if(!curPhone&&!curIsGroup)return;if(myBlocked.includes(curPhone)){alert('Unblock first');return;}const t=msgInput.value.trim();if(!t)return;const tm=new Date().getHours()+':'+String(new Date().getMinutes()).padStart(2,'0');msgInput.value='';if(curIsGroup){await db.collection('groups').doc(curGroupId).collection('messages').add({from:me.phone,text:t,type:'text',time:tm,createdAt:firebase.firestore.FieldValue.serverTimestamp()});await db.collection('groups').doc(curGroupId).update({lastMessage:t.slice(0,30)});}else{const id=getId(me.phone,curPhone);await db.collection('chats').doc(id).collection('messages').add({from:me.phone,to:curPhone,text:t,type:'text',time:tm,createdAt:firebase.firestore.FieldValue.serverTimestamp()});}}
+photoInput.addEventListener('change',function(){const f=this.files[0];if(!f)return;compressAndSend(f,'image');});
+videoInput.addEventListener('change',function(){const f=this.files[0];if(!f)return;if(f.size>12*1024*1024){alert('Max 12MB');return;}const r=new FileReader();r.onload=e=>sendMedia(e.target.result,'video');r.readAsDataURL(f);});
+function compressAndSend(file,type){const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');let w=img.width,h=img.height,max=700;if(w>max){h=h*(max/w);w=max;}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);sendMedia(c.toDataURL('image/jpeg',0.6),type);};img.src=e.target.result;};r.readAsDataURL(file);}
+async function sendMedia(b64,type){if(!curPhone&&!curIsGroup)return;const tm=new Date().getHours()+':'+String(new Date().getMinutes()).padStart(2,'0');if(curIsGroup){await db.collection('groups').doc(curGroupId).collection('messages').add({from:me.phone,text:b64,type,time:tm,createdAt:firebase.firestore.FieldValue.serverTimestamp()});await db.collection('groups').doc(curGroupId).update({lastMessage:'['+type.toUpperCase()+']'});}else{const id=getId(me.phone,curPhone);await db.collection('chats').doc(id).collection('messages').add({from:me.phone,to:curPhone,text:b64,type,time:tm,createdAt:firebase.firestore.FieldValue.serverTimestamp()});}}
+function openFull(src){fullImg.src=src;selectedMsgData={text:src,type:'image'};imgModal.style.display='flex';}
+let touchTimer=null;function touchStart(id,e){touchTimer=setTimeout(()=>{showContext(id,e.touches?e.touches[0]:e);},600);}function touchEnd(){if(touchTimer)clearTimeout(touchTimer);}
+function showContext(id,ev){const m=allMessages.find(x=>x.id===id);if(!m||m.deleted)return;selectedMsgId=id;selectedMsgData=m;const menu=contextMenu;menu.classList.remove('hidden');let x=ev.clientX||100,y=ev.clientY||100;menu.style.left=Math.min(x,window.innerWidth-240)+'px';menu.style.top=Math.min(y,window.innerHeight-230)+'px';}
+function closeContext(){contextMenu.classList.add('hidden');}
+function downloadCurrentMedia(){if(!selectedMsgData)return;const a=document.createElement('a');a.href=selectedMsgData.text;let ext='jpg';if(selectedMsgData.type==='video')ext='mp4';if(selectedMsgData.type==='audio')ext='webm';if(selectedMsgData.type==='text'){const blob=new Blob([selectedMsgData.text],{type:'text/plain'});a.href=URL.createObjectURL(blob);ext='txt';}a.download=`mudassir_${selectedMsgData.type}_${Date.now()}.${ext}`;document.body.appendChild(a);a.click();document.body.removeChild(a);closeContext();imgModal.style.display='none';alert('✅ Saved!');}
+async function deleteForMe(){if(!selectedMsgId)return;const ref=curIsGroup?db.collection('groups').doc(curGroupId).collection('messages').doc(selectedMsgId):db.collection('chats').doc(getId(me.phone,curPhone)).collection('messages').doc(selectedMsgId);const snap=await ref.get();const arr=snap.data().deletedFor||[];if(!arr.includes(me.phone))arr.push(me.phone);await ref.update({deletedFor:arr});closeContext();}
+async function deleteForEveryone(){if(!selectedMsgId)return;if(!confirm('Delete for everyone?'))return;const ref=curIsGroup?db.collection('groups').doc(curGroupId).collection('messages').doc(selectedMsgId):db.collection('chats').doc(getId(me.phone,curPhone)).collection('messages').doc(selectedMsgId);await ref.update({deleted:true,text:''});closeContext();}
+async function blockUser(){let ph=curPhone||(selectedMsgData?selectedMsgData.from:null);if(!ph||ph===me.phone){const u=allMessages.find(m=>m.id===selectedMsgId);if(u)ph=u.from===me.phone?u.to:u.from;}if(!ph||curIsGroup){alert('Cannot block in group');return;}if(myBlocked.includes(ph)){if(confirm('Unblock?')){myBlocked=myBlocked.filter(x=>x!==ph);await db.collection('chat_users').doc(me.phone).update({blocked:myBlocked});render();blockedNotice.classList.add('hidden');msgInput.disabled=false;}}else{if(confirm('Block '+ph+'?')){myBlocked.push(ph);await db.collection('chat_users').doc(me.phone).update({blocked:myBlocked});render();if(curPhone===ph){blockedNotice.classList.remove('hidden');msgInput.disabled=true;}}}closeContext();}
+async function unblockCurrent(){if(!curPhone)return;myBlocked=myBlocked.filter(x=>x!==curPhone);await db.collection('chat_users').doc(me.phone).update({blocked:myBlocked});blockedNotice.classList.add('hidden');msgInput.disabled=false;render();}
+function saveAllImages(){const imgs=allMessages.filter(m=>m.type==='image'&&!m.deleted);if(!imgs.length){alert('No images');return;}imgs.forEach((m,i)=>{setTimeout(()=>{const a=document.createElement('a');a.href=m.text;a.download=`mudassir_img_${i+1}.jpg`;document.body.appendChild(a);a.click();document.body.removeChild(a);},i*600);});alert(`Saving ${imgs.length} images...`);}
+function saveAllVideos(){const vids=allMessages.filter(m=>m.type==='video'&&!m.deleted);if(!vids.length){alert('No videos');return;}vids.forEach((m,i)=>{setTimeout(()=>{const a=document.createElement('a');a.href=m.text;a.download=`mudassir_video_${i+1}.mp4`;document.body.appendChild(a);a.click();document.body.removeChild(a);},i*800);});}
+async function toggleRec(){if(isRecording){if(mediaRecorder){mediaRecorder.stop();mediaRecorder.stream.getTracks().forEach(t=>t.stop());}isRecording=false;recBtn.textContent='🎤';return;}try{const s=await navigator.mediaDevices.getUserMedia({audio:true});mediaRecorder=new MediaRecorder(s);audioChunks=[];mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);mediaRecorder.onstop=async()=>{const b=new Blob(audioChunks,{type:'audio/webm'});const r=new FileReader();r.onloadend=()=>sendMedia(r.result,'audio');r.readAsDataURL(b);};mediaRecorder.start();isRecording=true;recBtn.textContent='⏹️';}catch(e){alert('Mic error');}}
+function logout(){if(confirm('Logout Mudassir Chat?')){if(me)db.collection('chat_users').doc(me.phone).update({online:false});localStorage.removeItem('mudassir_chat');location.reload();}}
+window.addEventListener('click',(e)=>{if(!contextMenu.contains(e.target)&&!e.target.closest('.bubble'))closeContext();});
+window.onload=()=>{const s=localStorage.getItem('mudassir_chat');if(s){me=JSON.parse(s);start();}}
+</script>
+</body>
+</html>
